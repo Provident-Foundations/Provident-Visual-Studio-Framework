@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <RootNamespace>Provident.Foundations.VisualStudio</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Provident.Foundations.VisualStudio</AssemblyName>
+    <AssemblyTitle>Provident Foundations Visual Studio Framework</AssemblyTitle>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Provident-Foundations-Framework\src\Core\Provident Foundations Framework\Provident.Foundations\Provident.Foundations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" Version="18.11.0" />
+    <PackageReference Include="Microsoft.Build.Locator" PrivateAssets="all" Version="1.11.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Provident Foundations\Provident Visual Studio Framework\Model\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\Provident Foundations\Provident Visual Studio Framework\Model\.editorconfig" />
+  </ItemGroup>
+
+</Project>
