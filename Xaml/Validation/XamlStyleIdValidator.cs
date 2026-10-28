@@ -28,10 +28,6 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     /// </summary>
     private VsSolutionModel? _solution;
 
-    /// <summary>
-    /// The validation execution instance.
-    /// </summary>
-    private XamlStyleValidator? _validator;
     #endregion
 
     #region Constructor /Dispose Methods
@@ -51,12 +47,6 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     /// <param name="disposing"></param>
     protected override void Dispose(bool disposing)
     {
-        if (!IsDisposed && disposing)
-        {
-            _validator?.Dispose();
-        }
-
-        _validator = null;
         _project = null;
         _solution = null;
         base.Dispose(disposing);
@@ -104,6 +94,10 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
         foreach (SolutionProjectModel project in _solution.Projects)
         {
             XamlProjectValidationResult projectResult = await ValidateXamlProjectAsync(project);
+            foreach(var entry in projectResult.Log.Entries)
+            {
+                entry.ParentReference = project.Project.Name;
+            }
             solutionResult.AddProjectResult(project, projectResult);
             await Task.Yield();
         }
@@ -206,9 +200,35 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
             comparer.StatusUpdate += HandleStatusUpdate;
 
             XamlStyleIdValidationReport report = await comparer.AnalyzeAsync(result.XamlFiles);
+            result.SetValidationReport(report);
+
+            if (report.Duplicates is { Count: > 0 } duplicates)
+            {
+                foreach (XamlDuplicateResource duplicate in duplicates)
+                {
+                    result.Log.AddFailure($"Duplicate resource '{duplicate.Key}'.  The original is defined in '{duplicate.ExistingFile}'.",
+                        duplicate.DuplicateFile);
+                }
+            }
+
+            if (report.Missing is { Count: > 0 } missingResources)
+            {
+                foreach (XamlMissingResource missing in missingResources)
+                {
+                    result.Log.AddFailure($"Missing resource '{missing.Key}' referenced in '{missing.File}' on line {missing.Line}.",
+                        missing.File);
+                }
+            }
+
+            if (report.CircularDependencies is { Count: > 0 } circularDependencies)
+            {
+                foreach (string dependency in circularDependencies)
+                {
+                    result.Log.AddFailure($"Circular resource dependency found: {dependency}.");
+                }
+            }
 
             comparer.StatusUpdate -= HandleStatusUpdate;
-            comparer.Dispose();
         }
         finally
         {

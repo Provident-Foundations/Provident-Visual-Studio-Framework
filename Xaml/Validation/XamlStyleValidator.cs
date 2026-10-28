@@ -278,9 +278,13 @@ public sealed class XamlStyleValidator : DisposableObjectBase
             
                 // Look for the "based On" attribute.
                 XAttribute? basedOnAttribute = XamlFunctions.ReadAttributeFromElement(element, BasedOnAttributeName);
-                if (basedOnAttribute is not null)
+                if (definition is not null && basedOnAttribute is not null)
                 {
-                    definitions.UpdateStyleDependencies(basedOnAttribute.Value);
+                    string dependencyKey = ReadDependencyKey(basedOnAttribute.Value);
+                    if (!string.IsNullOrWhiteSpace(dependencyKey))
+                    {
+                        definitions.AddStyleDependency(definition.Key, dependencyKey);
+                    }
                 }
             }
             result.Success = true;
@@ -460,6 +464,12 @@ public sealed class XamlStyleValidator : DisposableObjectBase
             };
         }
         return definition;
+    }
+
+    private static string ReadDependencyKey(string value)
+    {
+        Match match = XamlRegEx.ResourceReferenceRegex.Match(value);
+        return match.Success ? match.Groups[1].Value.Trim() : value.Trim();
     }
     private void AddToResourceLists(XamlDefinitionsContainer definitions, XamlResourceDefinition definition)
     {

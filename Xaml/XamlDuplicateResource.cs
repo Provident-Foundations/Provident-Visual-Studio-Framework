@@ -31,6 +31,16 @@ public sealed class XamlDuplicateResource : XamlResourceDescriptorBase
     #endregion
 
     #region Public Properties
+    public override string File
+    {
+        get => _duplicateFile;
+        set
+        {
+            base.File = value;
+            _duplicateFile = value;
+        }
+
+    }
     /// <summary>
     /// Gets or sets the name of the file where the item is duplicated.
     /// </summary>

@@ -152,28 +152,53 @@ public sealed class XamlDefinitionsContainer : DisposableObjectBase
     }
 
     /// <summary>
-    /// Updates the style dependencies list with the provided key value, either placing it
-    /// in the dependencies list if not already defined, or otherwise, in the duplicates
-    /// list.
+    /// Adds a style dependency to the dependency graph.
+    /// </summary>
+    /// <param name="styleKey">
+    /// A string containing the style ID / key name value that has the dependency.
+    /// </param>
+    /// <param name="dependencyKey">
+    /// A string containing the style ID / key name value on which the style depends.
+    /// </param>
+    public void AddStyleDependency(string styleKey, string dependencyKey)
+    {
+        if (string.IsNullOrWhiteSpace(styleKey) || string.IsNullOrWhiteSpace(dependencyKey))
+        {
+            return;
+        }
+
+        if (_styleDependencies is null)
+        {
+            _styleDependencies = new Dictionary<string, List<string>?>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        if (!_styleDependencies.TryGetValue(styleKey, out List<string>? dependencies) || dependencies is null)
+        {
+            dependencies = [];
+            _styleDependencies[styleKey] = dependencies;
+        }
+
+        if (!dependencies.Contains(dependencyKey, StringComparer.OrdinalIgnoreCase))
+        {
+            dependencies.Add(dependencyKey);
+        }
+    }
+
+    /// <summary>
+    /// Ensures that a style dependency graph node exists.
     /// </summary>
     /// <param name="keyValue">
     /// A string containing the style ID / key name value.
     /// </param>
     public void UpdateStyleDependencies(string keyValue)
     {
-        if (_styleDependencies is null)
+        if (string.IsNullOrWhiteSpace(keyValue))
         {
-            _styleDependencies = [];
+            return;
         }
 
-        bool success = _styleDependencies.TryGetValue(keyValue, out List<string>? dependencies);
-        if (success)
-        {
-            if (dependencies is not null)
-            {
-                _styleDependencies[keyValue] = dependencies;
-            }
-        }
+        _styleDependencies ??= new Dictionary<string, List<string>?>(StringComparer.OrdinalIgnoreCase);
+        _styleDependencies.TryAdd(keyValue, []);
     }
     #endregion
 }

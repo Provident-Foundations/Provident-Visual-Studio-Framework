@@ -77,7 +77,7 @@ public abstract class XamlResourceDescriptorBase : DisposableObjectBase
     /// <value>
     /// A string containing the path and name of the file.
     /// </value>
-    public string File
+    public virtual string File
     {
         get
         {
