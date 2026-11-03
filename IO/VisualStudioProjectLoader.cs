@@ -78,39 +78,54 @@ public sealed class VisualStudioProjectLoader
 
     private static void LoadEvaluatedSourceItems(ProjectModel project, string projectPath)
     {
-        project.CodeFiles.Clear();
-        project.XamlFiles.Clear();
-
         // Microsoft.Build's SDK resolvers are not initialized when the API is
         // hosted by an application instead of MSBuild.exe or Visual Studio.
         // Register the installed MSBuild instance before creating a project
         // collection so SDK-style projects can resolve Microsoft.NET.Sdk.
-        if (!MSBuildLocator.IsRegistered)
+        try
         {
-            MSBuildLocator.RegisterDefaults();
-        }
-
-        using ProjectCollection projectCollection = new();
-        Project evaluatedProject = projectCollection.LoadProject(projectPath);
-
-        foreach (string itemType in SourceItemTypes
-            .Concat(["Page", "ApplicationDefinition", "XamlResource"]))
-        {
-            foreach (ProjectItem evaluatedItem in evaluatedProject.GetItems(itemType))
+            if (!MSBuildLocator.IsRegistered)
             {
-                ProjectItemModel item = new()
-                {
-                    ItemType = evaluatedItem.ItemType,
-                    Include = evaluatedItem.EvaluatedInclude,
-                };
-
-                foreach (ProjectMetadata metadata in evaluatedItem.Metadata)
-                {
-                    item.Metadata[metadata.Name] = metadata.EvaluatedValue;
-                }
-
-                AddSpecializedItem(project, evaluatedItem.ItemType, item);
+                MSBuildLocator.RegisterDefaults();
             }
+
+            using ProjectCollection projectCollection = new();
+            Project evaluatedProject = projectCollection.LoadProject(projectPath);
+
+            // Keep the items parsed from the XML if MSBuild evaluation cannot
+            // be performed. Clear them only after evaluation has succeeded.
+            project.CodeFiles.Clear();
+            project.XamlFiles.Clear();
+
+            foreach (string itemType in SourceItemTypes
+                .Concat(["Page", "ApplicationDefinition", "XamlResource"]))
+            {
+                foreach (ProjectItem evaluatedItem in evaluatedProject.GetItems(itemType))
+                {
+                    ProjectItemModel item = new()
+                    {
+                        ItemType = evaluatedItem.ItemType,
+                        Include = evaluatedItem.EvaluatedInclude,
+                    };
+
+                    foreach (ProjectMetadata metadata in evaluatedItem.Metadata)
+                    {
+                        item.Metadata[metadata.Name] = metadata.EvaluatedValue;
+                    }
+
+                    AddSpecializedItem(project, evaluatedItem.ItemType, item);
+                }
+            }
+        }
+        catch (FileNotFoundException)
+        {
+            // XML parsing has already populated the declared items. Treat
+            // MSBuild evaluation as optional when its runtime is unavailable.
+        }
+        catch (FileLoadException)
+        {
+            // The installed MSBuild assembly may be present but incompatible.
+            // Retain the XML-only project model in that case as well.
         }
     }
 
