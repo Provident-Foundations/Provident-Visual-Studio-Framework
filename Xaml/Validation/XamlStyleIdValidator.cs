@@ -216,7 +216,8 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
                 foreach (XamlMissingResource missing in missingResources)
                 {
                     result.Log.AddFailure($"Missing resource '{missing.Key}' referenced in '{missing.File}' on line {missing.Line}.",
-                        missing.File);
+                        missing.File,
+                        missing.Line);
                 }
             }
 
