@@ -94,9 +94,9 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
         foreach (SolutionProjectModel project in _solution.Projects)
         {
             XamlProjectValidationResult projectResult = await ValidateXamlProjectAsync(project);
-            foreach(var entry in projectResult.Log.Entries)
+            foreach (var entry in projectResult.Log.Entries)
             {
-                entry.ParentReference = project.Project.Name;
+                entry.ParentReference = project.Project?.Name ?? project.Name;
             }
             solutionResult.AddProjectResult(project, projectResult);
             await Task.Yield();
@@ -117,6 +117,11 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     public async Task<XamlProjectValidationResult> ValidateXamlProjectAsync(SolutionProjectModel xamlProject)
     {
         XamlProjectValidationResult result = new XamlProjectValidationResult();
+        if (xamlProject.Project is null)
+        {
+            result.Log.AddFailure($"Project '{xamlProject.Name ?? xamlProject.RelativePath}' could not be loaded.");
+            return result;
+        }
 
         UpdateStatus("Finding And Reading XAML files...");
         _project = xamlProject;
@@ -147,9 +152,9 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     {
         bool success = false;
 
-        if (_project == null)
+        if (string.IsNullOrWhiteSpace(_project?.Project?.FilePath))
         {
-            result.Log.AddFailure("Project is not set.");
+            result.Log.AddFailure("Project file path is not available.");
         }
         else
         {
