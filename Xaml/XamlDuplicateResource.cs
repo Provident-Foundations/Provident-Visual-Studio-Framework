@@ -33,7 +33,7 @@ public sealed class XamlDuplicateResource : XamlResourceDescriptorBase
     #region Public Properties
     public override string File
     {
-        get => _duplicateFile;
+        get => _duplicateFile ?? string.Empty;
         set
         {
             base.File = value;
