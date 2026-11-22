@@ -44,11 +44,11 @@ public sealed class XamlDefinitionsContainer : DisposableObjectBase
     /// </remarks>
     public XamlDefinitionsContainer()
     {
-        _resourceDefinitions = new Dictionary<string, XamlResourceDefinition>(StringComparer.OrdinalIgnoreCase);
-        _duplicateDefinitions = new List<XamlDuplicateResource>();
-        _validReferences = new List<XamlResourceReference>();
-        _missingResources = new List<XamlMissingResource>();
-        _styleDependencies = new Dictionary<string, List<string>?>(StringComparer.OrdinalIgnoreCase);
+        _resourceDefinitions = [with(StringComparer.OrdinalIgnoreCase)];
+        _duplicateDefinitions = [];
+        _validReferences = [];
+        _missingResources = [];
+        _styleDependencies = [with(StringComparer.OrdinalIgnoreCase)];
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public sealed class XamlDefinitionsContainer : DisposableObjectBase
 
         if (_styleDependencies is null)
         {
-            _styleDependencies = new Dictionary<string, List<string>?>(StringComparer.OrdinalIgnoreCase);
+            _styleDependencies = [with(StringComparer.OrdinalIgnoreCase)];
         }
 
         if (!_styleDependencies.TryGetValue(styleKey, out List<string>? dependencies) || dependencies is null)
@@ -197,7 +197,7 @@ public sealed class XamlDefinitionsContainer : DisposableObjectBase
             return;
         }
 
-        _styleDependencies ??= new Dictionary<string, List<string>?>(StringComparer.OrdinalIgnoreCase);
+        _styleDependencies ??= [with(StringComparer.OrdinalIgnoreCase)];
         _styleDependencies.TryAdd(keyValue, []);
     }
     #endregion

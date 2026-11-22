@@ -13,10 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Provident-Foundations-Framework\src\Core\Provident Foundations Framework\Provident.Foundations\Provident.Foundations.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" Version="18.11.0" />
     <PackageReference Include="Microsoft.Build.Framework" ExcludeAssets="runtime" PrivateAssets="all" Version="18.11.0" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" ExcludeAssets="runtime" PrivateAssets="all" Version="18.11.0" />
@@ -35,6 +31,10 @@
 
   <ItemGroup>
     <None Include="D:\Provident Foundations\Provident Visual Studio Framework\Model\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Provident Foundations Framework\Provident.Foundations\Provident.Foundations.csproj" />
   </ItemGroup>
 
 </Project>

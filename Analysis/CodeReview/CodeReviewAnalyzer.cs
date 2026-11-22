@@ -1,12 +1,8 @@
-﻿using Microsoft.Build.Evaluation;
-using Microsoft.Build.Tasks.Deployment.Bootstrapper;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.Options;
 using Provident.Foundations.Abstractions;
 using Provident.Foundations.VisualStudio.Model;
-using System.ComponentModel;
 using System.Text.RegularExpressions;
 
 

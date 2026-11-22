@@ -38,18 +38,27 @@ public static class XamlIoOperations
     public static async Task<OperationResult<List<string>>> FindXamlFilesAsync(string rootFolder)
     {
         OperationResult<List<string>> result = new();
-
+        
         await Task.Yield();
         try
         {
-            List<string> files = Directory.EnumerateFiles(System.IO.Path.GetDirectoryName(rootFolder), "*", SearchOption.AllDirectories)
+            string? path = Path.GetDirectoryName(rootFolder);
+            if (path is not null)
+            {
+                List<string> files = Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
                 .Where(fileName => string.Equals(Path.GetExtension(fileName), ".xaml", StringComparison.OrdinalIgnoreCase))
                 .Where(fileName => !IsBuildOutputPath(fileName))
                 .OrderBy(fileName => fileName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+                result.Success = true;
+                result.DataContent = files;
+            }
+            else
+            {
+                result.SetFailureMessage("An invaliud path or directory name was specufied.");
 
-            result.Success = true;
-            result.DataContent = files;
+            }    
+
         }
         catch (Exception exception)
         {

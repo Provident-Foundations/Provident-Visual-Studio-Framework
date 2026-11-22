@@ -85,7 +85,7 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     /// </returns>
     public async Task<XamlSolutionValidationResult> ValidateXamlSolutionAsync(VsSolutionModel xamlSolution)
     {
-        XamlSolutionValidationResult solutionResult = new XamlSolutionValidationResult();
+        XamlSolutionValidationResult solutionResult = new();
         UpdateStatus("Finding And Reading XAML files...");
         _solution = xamlSolution;
 
@@ -116,7 +116,7 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     /// </returns>
     public async Task<XamlProjectValidationResult> ValidateXamlProjectAsync(SolutionProjectModel xamlProject)
     {
-        XamlProjectValidationResult result = new XamlProjectValidationResult();
+        XamlProjectValidationResult result = new();
         if (xamlProject.Project is null)
         {
             result.Log.AddFailure($"Project '{xamlProject.Name ?? xamlProject.RelativePath}' could not be loaded.");

@@ -251,7 +251,7 @@ public sealed class XamlStyleValidator : DisposableObjectBase
     /// </returns>
     private OperationResult ScanDefinitions(string fileName, XamlFile xamlDocument)
     {
-        OperationResult result = new OperationResult();
+        OperationResult result = new();
 
         if (xamlDocument is null || xamlDocument.Document is null)
         {
@@ -299,7 +299,7 @@ public sealed class XamlStyleValidator : DisposableObjectBase
     /// <param name="xamlDocument">The loaded XAML file.</param>
     private OperationResult ScanReferences(string fileName, XamlFile xamlDocument)
     {
-        OperationResult result = new OperationResult();
+        OperationResult result = new();
 
         if (_xamlDefs is null)
         {
@@ -366,11 +366,13 @@ public sealed class XamlStyleValidator : DisposableObjectBase
         List<string> path = [];
         HashSet<string> cycleKeys = new(StringComparer.Ordinal);
 
-        foreach (string node in definitions.StyleDependencies.Keys)
+        if (definitions.StyleDependencies is not null)
         {
-            Visit(node, definitions.StyleDependencies, visited, active, path, cycleKeys, info);
+            foreach (string node in definitions.StyleDependencies.Keys)
+            {
+                Visit(node, definitions.StyleDependencies, visited, active, path, cycleKeys, info);
+            }
         }
-
         return info;
     }
 

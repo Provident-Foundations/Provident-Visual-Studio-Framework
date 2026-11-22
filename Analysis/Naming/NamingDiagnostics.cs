@@ -31,5 +31,5 @@ public sealed class NamingAnalysisProgress
     /// <summary>Gets the total item count.</summary>
     public int TotalItems { get; init; }
     /// <summary>Gets the progress percentage.</summary>
-    public double Percentage => TotalItems <= 0 ? 0 : Math.Clamp((double)CompletedItems / TotalItems * 100, 0, 100);
+    public double Percentage => TotalItems <= 0 ? 0 : System.Math.Clamp((double)CompletedItems / TotalItems * 100, 0, 100);
 }

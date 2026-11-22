@@ -30,7 +30,7 @@ public sealed class NamingPatternAnalyzer
                 bool prefixMismatch = pattern.CommonPrefixes.Count > 0 && observation.Classification.Tokenization.Prefix is not null && !pattern.CommonPrefixes.Contains(observation.Classification.Tokenization.Prefix, StringComparer.OrdinalIgnoreCase);
                 if (!styleMismatch && !prefixMismatch)
                     continue;
-                double confidence = Math.Min(pattern.Confidence, observation.Classification.Confidence);
+                double confidence = System.Math.Min(pattern.Confidence, observation.Classification.Confidence);
                 if (confidence < configuration.MinimumViolationConfidence || IsSuppressed(observation, suppressions))
                     continue;
                 violations.Add(new NamingViolation
@@ -85,8 +85,8 @@ public sealed class NamingPatternAnalyzer
             Id = $"{projectName ?? "solution"}:{kind}:{language}",
             Scope = new NamingPatternScope { SymbolKind = kind, Language = language, ProjectName = projectName },
             DominantStyle = dominant?.Key ?? NamingStyle.Unknown,
-            CommonPrefixes = CountValues(observations.Select(item => item.Classification.Tokenization.Prefix)).Where(item => item.Value >= Math.Max(2, count / 2)).Select(item => item.Key).ToArray(),
-            CommonSuffixes = CountValues(observations.Select(item => item.Classification.Tokenization.Suffix)).Where(item => item.Value >= Math.Max(2, count / 2)).Select(item => item.Key).ToArray(),
+            CommonPrefixes = CountValues(observations.Select(item => item.Classification.Tokenization.Prefix)).Where(item => item.Value >= System.Math.Max(2, count / 2)).Select(item => item.Key).ToArray(),
+            CommonSuffixes = CountValues(observations.Select(item => item.Classification.Tokenization.Suffix)).Where(item => item.Value >= System.Math.Max(2, count / 2)).Select(item => item.Key).ToArray(),
             ObservationIds = observations.Select(item => item.Id).ToArray(),
             ObservationCount = observations.Count,
             MatchingCount = count,
