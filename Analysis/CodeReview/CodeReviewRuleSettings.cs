@@ -5,12 +5,18 @@ namespace Provident.Foundations.VisualStudio.Analysis.CodeReview;
 /// </summary>
 public sealed class CodeReviewRuleSettings
 {
-    /// <summary>Gets or sets whether the rule is enabled.</summary>
+    /// <summary>
+    /// Gets or sets whether the rule is enabled.
+    /// </summary>
     public bool Enabled { get; set; } = true;
 
-    /// <summary>Gets or sets the finding severity; null uses the rule's default.</summary>
+    /// <summary>
+    /// Gets or sets the finding severity; null uses the rule's default.
+    /// </summary>
     public ReviewSeverity? Severity { get; set; }
 
-    /// <summary>Gets or sets the rule's regular expression, where supported.</summary>
+    /// <summary>
+    /// Gets or sets the rule's regular expression, where supported.
+    /// </summary>
     public string? Pattern { get; set; }
 }

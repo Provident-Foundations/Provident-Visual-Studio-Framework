@@ -96,7 +96,9 @@ public sealed class CodeReviewAnalyzer : DisposableObjectBase
     /// <returns>
     /// A <see cref="ReviewReport"/> instance containing the results of the code review operation.
     /// </returns>
-    /// <exception cref="DirectoryNotFoundException"></exception>
+    /// <exception cref="DirectoryNotFoundException">
+    /// Thrown when the specified directory does not exist.
+    /// </exception>
     private async Task<ReviewReport> ReviewAsync(string directory, IReadOnlyList<ReviewCategory> categories, IProgress<ReviewProgress>? progress, CancellationToken token, VsSolutionModel? workspace)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
@@ -398,9 +400,10 @@ public sealed class CodeReviewAnalyzer : DisposableObjectBase
                 {
                     foreach (BinaryExpressionSyntax expression in root.DescendantNodes().OfType<BinaryExpressionSyntax>())
                     {
-                        if (expression.IsKind(SyntaxKind.CoalesceExpression) && expression.Right.ToString() == "string.Empty")
+                        if (expression.IsKind(SyntaxKind.CoalesceExpression) && expression.Right.ToString() is
+                            "string.Empty" or "String.Empty" or "\"\"" or "0" or "false" or "Guid.Empty" or "DateTime.MinValue")
                         {
-                            Add(expression, CodeReviewSettings.NullDefaultRule, "Null default", "Check whether the empty string masks a meaningful null.");
+                            Add(expression, CodeReviewSettings.NullDefaultRule, "Null default", "Check whether this default masks a meaningful missing value.");
                         }
                     }
                 }
@@ -455,7 +458,242 @@ public sealed class CodeReviewAnalyzer : DisposableObjectBase
                 }
                 break;
         }
+
+        CheckAdditionalCSharp(category, root, Add, settings);
     }
+
+    private static void CheckAdditionalCSharp(
+        ReviewCategory category,
+        SyntaxNode root,
+        Action<SyntaxNode, string, string, string> add,
+        CodeReviewSettings settings)
+    {
+        bool IsEnabled(string ruleId) => settings.GetRule(ruleId).Enabled;
+
+        if (category == ReviewCategory.CodeQuality)
+        {
+            if (IsEnabled(CodeReviewSettings.AsyncVoidRule))
+            {
+                foreach (MethodDeclarationSyntax method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
+                {
+                    bool eventHandler = method.ParameterList.Parameters.Count == 2 &&
+                        method.ParameterList.Parameters[1].Type?.ToString().EndsWith("EventArgs", StringComparison.Ordinal) == true;
+                    if (method.Modifiers.Any(SyntaxKind.AsyncKeyword) && method.ReturnType is PredefinedTypeSyntax { Keyword.RawKind: (int)SyntaxKind.VoidKeyword } && !eventHandler)
+                    {
+                        add(method, CodeReviewSettings.AsyncVoidRule, "Async void", "This async method returns void; return Task so callers can await it and observe exceptions.");
+                    }
+                }
+            }
+
+            if (IsEnabled(CodeReviewSettings.AsyncWithoutAwaitRule))
+            {
+                foreach (MethodDeclarationSyntax method in root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                             .Where(method => method.Modifiers.Any(SyntaxKind.AsyncKeyword)))
+                {
+                    IEnumerable<SyntaxNode> body = method.DescendantNodes(child => child is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax));
+                    bool awaits = body.OfType<AwaitExpressionSyntax>().Any() ||
+                        body.OfType<CommonForEachStatementSyntax>().Any(loop => loop.AwaitKeyword != default) ||
+                        body.OfType<UsingStatementSyntax>().Any(statement => statement.AwaitKeyword != default) ||
+                        body.OfType<LocalDeclarationStatementSyntax>().Any(local => local.AwaitKeyword != default);
+                    if (!awaits)
+                    {
+                        add(method, CodeReviewSettings.AsyncWithoutAwaitRule, "Async without await", $"'{method.Identifier.ValueText}' is async but never awaits.");
+                    }
+                }
+            }
+
+            if (IsEnabled(CodeReviewSettings.ThrowExceptionVariableRule))
+            {
+                foreach (CatchClauseSyntax clause in root.DescendantNodes().OfType<CatchClauseSyntax>())
+                {
+                    string? name = clause.Declaration?.Identifier.ValueText;
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        continue;
+                    }
+
+                    foreach (ThrowStatementSyntax thrown in clause.Block.DescendantNodes().OfType<ThrowStatementSyntax>()
+                                 .Where(thrown => thrown.FirstAncestorOrSelf<CatchClauseSyntax>() == clause &&
+                                     thrown.Expression is IdentifierNameSyntax identifier && identifier.Identifier.ValueText == name))
+                    {
+                        add(thrown, CodeReviewSettings.ThrowExceptionVariableRule, "Rethrown exception", $"Throwing '{name}' resets the original stack trace; use 'throw;'.");
+                    }
+                }
+            }
+
+            if (IsEnabled(CodeReviewSettings.SyncOverAsyncRule))
+            {
+                foreach (MemberAccessExpressionSyntax result in root.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
+                             .Where(access => access.Name.Identifier.ValueText == "Result" && access.Expression is InvocationExpressionSyntax))
+                {
+                    add(result, CodeReviewSettings.SyncOverAsyncRule, "Sync over async", "This blocks on an asynchronous result; make the caller async and await it.");
+                }
+
+                foreach (InvocationExpressionSyntax call in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
+                {
+                    if (call.ArgumentList.Arguments.Count != 0 || call.Expression is not MemberAccessExpressionSyntax member)
+                    {
+                        continue;
+                    }
+
+                    bool blocksOnAsync = member.Name.Identifier.ValueText == "GetResult" &&
+                        member.Expression is InvocationExpressionSyntax awaiter && MethodName(awaiter) == "GetAwaiter";
+                    blocksOnAsync |= member.Name.Identifier.ValueText == "Wait" &&
+                        member.Expression is InvocationExpressionSyntax;
+                    if (blocksOnAsync)
+                    {
+                        add(call, CodeReviewSettings.SyncOverAsyncRule, "Sync over async", "This blocks on asynchronous work; make the caller async and await it.");
+                    }
+                }
+            }
+
+            if (IsEnabled(CodeReviewSettings.DirectClockRule))
+            {
+                foreach (MemberAccessExpressionSyntax access in root.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
+                             .Where(access => access.ToString() is "DateTime.Now" or "DateTime.UtcNow" or "DateTime.Today" or
+                                 "DateTimeOffset.Now" or "DateTimeOffset.UtcNow"))
+                {
+                    add(access, CodeReviewSettings.DirectClockRule, "Direct clock access", "Read time through an injected TimeProvider so time-dependent behavior can be tested.");
+                }
+            }
+
+            if (IsEnabled(CodeReviewSettings.InterpolatedLogRule))
+            {
+                foreach (InvocationExpressionSyntax call in root.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                             .Where(call => IsLoggingMethod(MethodName(call))))
+                {
+                    if (call.ArgumentList.Arguments.Any(argument => argument.Expression is InterpolatedStringExpressionSyntax))
+                    {
+                        add(call, CodeReviewSettings.InterpolatedLogRule, "Interpolated log message", "Use a constant log template with named placeholders and pass values as arguments.");
+                    }
+                }
+            }
+
+            if (IsEnabled(CodeReviewSettings.UnbracedLoopRule))
+            {
+                foreach (SyntaxNode loop in root.DescendantNodes().Where(node => node is CommonForEachStatementSyntax or ForStatementSyntax or WhileStatementSyntax or DoStatementSyntax))
+                {
+                    StatementSyntax body = loop switch
+                    {
+                        CommonForEachStatementSyntax each => each.Statement,
+                        ForStatementSyntax forLoop => forLoop.Statement,
+                        WhileStatementSyntax whileLoop => whileLoop.Statement,
+                        DoStatementSyntax doLoop => doLoop.Statement,
+                        _ => throw new InvalidOperationException("Unexpected loop syntax node.")
+                    };
+                    if (body is not BlockSyntax)
+                    {
+                        add(loop, CodeReviewSettings.UnbracedLoopRule, "Braces", "Add braces to this loop body.");
+                    }
+                }
+            }
+        }
+
+        if (category == ReviewCategory.ErrorHandling)
+        {
+            foreach (CatchClauseSyntax clause in root.DescendantNodes().OfType<CatchClauseSyntax>())
+            {
+                string? exceptionName = clause.Declaration?.Identifier.ValueText;
+                IEnumerable<InvocationExpressionSyntax> logs = clause.Block.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Where(call => IsLoggingMethod(MethodName(call)));
+
+                if (IsEnabled(CodeReviewSettings.LogExceptionMessageRule) && !string.IsNullOrEmpty(exceptionName))
+                {
+                    foreach (InvocationExpressionSyntax call in logs.Where(call => call.ArgumentList.Arguments.Any(argument =>
+                                 argument.Expression.DescendantNodesAndSelf().OfType<MemberAccessExpressionSyntax>().Any(access =>
+                                     access.Name.Identifier.ValueText == "Message" && access.Expression.ToString() == exceptionName))))
+                    {
+                        add(call, CodeReviewSettings.LogExceptionMessageRule, "Exception logging", $"Log the '{exceptionName}' exception object, not just its message, to preserve the stack trace.");
+                    }
+                }
+
+                if (IsEnabled(CodeReviewSettings.LogAndRethrowRule) &&
+                    logs.Any() && clause.Block.DescendantNodes().OfType<ThrowStatementSyntax>().Any(thrown => thrown.FirstAncestorOrSelf<CatchClauseSyntax>() == clause))
+                {
+                    add(clause, CodeReviewSettings.LogAndRethrowRule, "Duplicate exception logging", "This catch logs and rethrows; log once at the layer that handles the failure.");
+                }
+            }
+        }
+
+        if (category == ReviewCategory.Nullability && IsEnabled(CodeReviewSettings.NullSuppressionRule))
+        {
+            foreach (PostfixUnaryExpressionSyntax suppression in root.DescendantNodes().OfType<PostfixUnaryExpressionSyntax>()
+                         .Where(expression => expression.IsKind(SyntaxKind.SuppressNullableWarningExpression) &&
+                             expression.Operand is not LiteralExpressionSyntax and not DefaultExpressionSyntax))
+            {
+                add(suppression, CodeReviewSettings.NullSuppressionRule, "Null suppression", "This suppresses a possible null without proving the value is present; handle the null explicitly.");
+            }
+        }
+
+        if (category == ReviewCategory.Database)
+        {
+            if (IsEnabled(CodeReviewSettings.UtcFieldLocalTimeRule))
+            {
+                foreach (AssignmentExpressionSyntax assignment in root.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+                {
+                    string target = assignment.Left switch
+                    {
+                        MemberAccessExpressionSyntax member => member.Name.Identifier.ValueText,
+                        IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
+                        _ => string.Empty
+                    };
+                    string value = assignment.Right.ToString();
+                    if (target.EndsWith("Utc", StringComparison.OrdinalIgnoreCase) &&
+                        (value.Contains("DateTime.Now", StringComparison.Ordinal) || value.Contains("DateTimeOffset.Now", StringComparison.Ordinal) ||
+                         value.Contains("ToLocalTime(", StringComparison.Ordinal) || value.Contains("TimeZoneInfo.Convert", StringComparison.Ordinal)))
+                    {
+                        add(assignment, CodeReviewSettings.UtcFieldLocalTimeRule, "UTC assignment", $"'{target}' is named as UTC but receives a local or zoned time.");
+                    }
+                }
+            }
+
+            if (IsEnabled(CodeReviewSettings.MultipleDatabaseWritesRule))
+            {
+                string[] writeMethods = ["ExecuteAsync", "ExecuteNonQueryAsync", "SaveChangesAsync", "ExecuteSqlRawAsync", "ExecuteSqlInterpolatedAsync", "ExecuteUpdateAsync", "ExecuteDeleteAsync"];
+                foreach (MethodDeclarationSyntax method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
+                {
+                    IEnumerable<SyntaxNode> body = method.DescendantNodes(child => child is not (AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax));
+                    List<InvocationExpressionSyntax> calls = body.OfType<InvocationExpressionSyntax>().ToList();
+                    int writes = calls.Count(call => writeMethods.Contains(MethodName(call), StringComparer.Ordinal));
+                    bool transaction = calls.Any(call => MethodName(call) is "BeginTransaction" or "BeginTransactionAsync") ||
+                        body.OfType<ObjectCreationExpressionSyntax>().Any(created => created.Type.ToString().EndsWith("TransactionScope", StringComparison.Ordinal));
+                    if (writes >= 2 && !transaction)
+                    {
+                        add(method, CodeReviewSettings.MultipleDatabaseWritesRule, "Database transaction", $"This method makes {writes} database writes without a visible transaction.");
+                    }
+                }
+            }
+        }
+
+        if (category == ReviewCategory.Testing && IsEnabled(CodeReviewSettings.InlineDataArrayRule))
+        {
+            foreach (MethodDeclarationSyntax method in root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                         .Where(method => method.ParameterList.Parameters.Count == 1 && method.ParameterList.Parameters[0].Type is ArrayTypeSyntax))
+            {
+                foreach (AttributeSyntax attribute in method.AttributeLists.SelectMany(list => list.Attributes)
+                             .Where(attribute =>
+                             {
+                                 string name = attribute.Name.ToString().Split('.').Last().Split("::", StringSplitOptions.None).Last();
+                                 return (name is "InlineData" or "InlineDataAttribute") &&
+                                     attribute.ArgumentList?.Arguments.Count == 1 &&
+                                     attribute.ArgumentList.Arguments[0].Expression is ArrayCreationExpressionSyntax or
+                                         ImplicitArrayCreationExpressionSyntax or CollectionExpressionSyntax;
+                             }))
+                {
+                    add(attribute, CodeReviewSettings.InlineDataArrayRule, "InlineData array", "InlineData treats this array as the argument list, not as one array argument.");
+                }
+            }
+        }
+    }
+
+    private static string? MethodName(InvocationExpressionSyntax invocation) => invocation.Expression switch
+    {
+        MemberAccessExpressionSyntax member => member.Name.Identifier.ValueText,
+        SimpleNameSyntax name => name.Identifier.ValueText,
+        _ => null
+    };
+
+    private static bool IsLoggingMethod(string? name) => name is "Log" or "LogTrace" or "LogDebug" or "LogInformation" or "LogWarning" or "LogError" or "LogCritical";
 
     private static void CheckSql(ReviewCategory category, SourceFile file, List<ReviewFinding> findings, CodeReviewSettings settings)
     {
@@ -465,40 +703,62 @@ public sealed class CodeReviewAnalyzer : DisposableObjectBase
         }
 
         CodeReviewRuleSettings ruleSettings = settings.GetRule(CodeReviewSettings.MigrationGuardRule);
-        if (!ruleSettings.Enabled)
+        if (ruleSettings.Enabled)
         {
-            return;
+            MatchCollection matches = Regex.Matches(
+                file.Text,
+                ruleSettings.Pattern!,
+                RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking,
+                TimeSpan.FromMilliseconds(500));
+            foreach (Match match in matches)
+            {
+                int line = file.Text.AsSpan(0, match.Index).Count('\n') + 1;
+                findings.Add(new(
+                    category,
+                    "Migration determinism",
+                    "Check whether this guard hides an unexpected schema state.",
+                    Path.GetDirectoryName(file.Path),
+                    Path.GetFileName(file.Path),
+                    line,
+                    false,
+                    ruleSettings.Severity ?? ReviewSeverity.Warning));
+            }
         }
 
-        MatchCollection matches = Regex.Matches(
-            file.Text,
-            ruleSettings.Pattern!,
-            RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking,
-            TimeSpan.FromMilliseconds(500));
-        foreach (Match match in matches)
+        string[] lines = file.Text.Split('\n');
+        for (int index = 0; index < lines.Length; index++)
         {
-            int line = file.Text.AsSpan(0, match.Index).Count('\n') + 1;
-            findings.Add(new(
-                category,
-                "Migration determinism",
-                "Check whether this guard hides an unexpected schema state.",
-                Path.GetDirectoryName(file.Path),
-                Path.GetFileName(file.Path),
-                line,
-                false,
-                ruleSettings.Severity ?? ReviewSeverity.Warning));
+            string code = lines[index].TrimEnd('\r').Split("--", 2, StringSplitOptions.None)[0];
+            int lineNumber = index + 1;
+            if (settings.GetRule(CodeReviewSettings.SqlUtcTimestampRule).Enabled &&
+                Regex.IsMatch(code, @"\btimestamp\b(?!\s*with\s+time\s+zone)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(500)))
+            {
+                AddSqlFinding(findings, category, file, lineNumber, CodeReviewSettings.SqlUtcTimestampRule, "UTC timestamp", "Use 'timestamp with time zone' for a timestamp that represents an instant.", settings);
+            }
+
+            if (settings.GetRule(CodeReviewSettings.SqlNamedPrimaryKeyRule).Enabled &&
+                Regex.IsMatch(code, @"\bconstraint\s+\S+\s+primary\s+key\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromMilliseconds(500)))
+            {
+                AddSqlFinding(findings, category, file, lineNumber, CodeReviewSettings.SqlNamedPrimaryKeyRule, "Redundant primary-key name", "Let PostgreSQL name the primary-key constraint; write a plain PRIMARY KEY.", settings);
+            }
         }
+    }
+
+    private static void AddSqlFinding(List<ReviewFinding> findings, ReviewCategory category, SourceFile file, int line, string ruleId, string ruleName, string message, CodeReviewSettings settings)
+    {
+        CodeReviewRuleSettings ruleSettings = settings.GetRule(ruleId);
+        findings.Add(new(category, ruleName, message, Path.GetDirectoryName(file.Path), Path.GetFileName(file.Path), line, false, ruleSettings.Severity ?? ReviewSeverity.Warning));
     }
 
     private static string Coverage(ReviewCategory category) => category switch
     {
         ReviewCategory.Naming => "Only constant naming is checked automatically; review remaining naming rules and project conventions manually.",
-        ReviewCategory.Nullability => "Only coalescing to string.Empty is checked automatically; review contracts, schema and mappings manually.",
-        ReviewCategory.Database => "Only single-line IF EXISTS guards are checked; review schema, indexes, transactions and migrations manually.",
+        ReviewCategory.Nullability => "Fake null-coalescing defaults and null-forgiving operators are checked; review contracts, schema and mappings manually.",
+        ReviewCategory.Database => "Migration guards, UTC timestamp columns, and named primary-key constraints are checked; review schema, indexes and transaction boundaries manually.",
         ReviewCategory.Architecture => "Architecture, layering and downstream behavior require manual review; no automated rules implemented.",
-        ReviewCategory.ErrorHandling => "Only empty C# catches are checked; review logging, failure paths and observability manually.",
-        ReviewCategory.CodeQuality => "Only unbraced C# if bodies are checked; review readability, dead code and public surface manually.",
-        ReviewCategory.Testing => "Test behavior, coverage and fixtures require manual review; no automated rules implemented.",
+        ReviewCategory.ErrorHandling => "Empty catches, exception-message-only logging, and log-and-rethrow patterns are checked; review remaining failure paths and observability manually.",
+        ReviewCategory.CodeQuality => "Unbraced if/loop bodies, async misuse, sync-over-async, interpolated logging and direct clock access are checked; review remaining readability and public surface manually.",
+        ReviewCategory.Testing => "InlineData array argument traps are checked; review test behavior, coverage and fixtures manually.",
         ReviewCategory.Completeness => "Only TODO/FIXME comments are checked; verify business rules and removed consumers manually.",
         ReviewCategory.DependencyInjection => "DI lifetime and registration rules are project-specific and require manual review; no automated rules implemented.",
         ReviewCategory.ControlFlow => "Trace guards, catches and loop boundaries manually; no automated rules implemented.",

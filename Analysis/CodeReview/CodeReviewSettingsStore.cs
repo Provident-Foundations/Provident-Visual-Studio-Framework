@@ -10,14 +10,18 @@ public static class CodeReviewSettingsStore
 {
     private static readonly JsonSerializerOptions SerializerOptions = CreateSerializerOptions();
 
-    /// <summary>Gets the configuration path for a solution or project directory.</summary>
+    /// <summary>
+    /// Gets the configuration path for a solution or project directory.
+    /// </summary>
     public static string GetConfigurationPath(string directory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         return Path.Combine(Path.GetFullPath(directory), CodeReviewSettings.ConfigurationFileName);
     }
 
-    /// <summary>Loads configuration, returning built-in defaults when no file exists.</summary>
+    /// <summary>
+    /// Loads configuration, returning built-in defaults when no file exists.
+    /// </summary>
     public static async Task<CodeReviewSettings> LoadAsync(string directory, CancellationToken cancellationToken = default)
     {
         string path = GetConfigurationPath(directory);
@@ -44,7 +48,9 @@ public static class CodeReviewSettingsStore
         }
     }
 
-    /// <summary>Creates a default configuration file without overwriting an existing file.</summary>
+    /// <summary>
+    /// Creates a default configuration file without overwriting an existing file.
+    /// </summary>
     public static async Task<string> CreateDefaultFileAsync(string directory, CancellationToken cancellationToken = default)
     {
         string path = GetConfigurationPath(directory);

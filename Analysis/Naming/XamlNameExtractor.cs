@@ -3,19 +3,37 @@ using System.Xml;
 
 namespace Provident.Foundations.VisualStudio.Analysis.Naming;
 
-/// <summary>Extracts naming observations from XAML documents.</summary>
-public sealed class XamlNameExtractor
+/// <summary>
+/// Extracts naming observations from XAML documents.
+/// </summary>
+public sealed class XamlNameExtractor : Provident.Foundations.Abstractions.DisposableObjectBase
 {
     private static readonly XNamespace XamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
     private readonly INamingClassifier _classifier;
+    private readonly bool _ownsClassifier;
 
-    /// <summary>Initializes a new XAML name extractor.</summary>
+    /// <summary>
+    /// Initializes a new XAML name extractor.
+    /// </summary>
     public XamlNameExtractor(INamingClassifier? classifier = null)
     {
         _classifier = classifier ?? new NamingClassifier();
+        _ownsClassifier = classifier is null;
     }
 
-    /// <summary>Extracts identifiers, keys, bindings, and event handlers from XAML.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (!IsDisposed && disposing && _ownsClassifier && _classifier is IDisposable disposableClassifier)
+        {
+            disposableClassifier.Dispose();
+        }
+
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Extracts identifiers, keys, bindings, and event handlers from XAML.
+    /// </summary>
     public IReadOnlyList<NamingObservation> Extract(
         string source,
         NamingSourceFileIdentity sourceFile,
@@ -92,11 +110,4 @@ public sealed class XamlNameExtractor
         char.IsUpper(attribute.Name.LocalName[0]) && attribute.Name.LocalName.EndsWith("Click", StringComparison.Ordinal) ||
         attribute.Name.LocalName.EndsWith("Changed", StringComparison.Ordinal) ||
         attribute.Name.LocalName.EndsWith("Loaded", StringComparison.Ordinal);
-
-    private sealed class XObjectLineInfo : IXmlLineInfo
-    {
-        public bool HasLineInfo() => false;
-        public int LineNumber => 1;
-        public int LinePosition => 1;
-    }
 }

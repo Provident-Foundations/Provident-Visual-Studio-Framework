@@ -9,21 +9,45 @@ namespace Provident.Foundations.VisualStudio.Code;
 /// </summary>
 public static class ClassLayoutRefactorer
 {
-    /// <summary>Applies the default class layout to a class in a Roslyn document.</summary>
-    /// <param name="document">The document containing the class.</param>
-    /// <param name="classNode">The class declaration to transform.</param>
-    /// <param name="cancellationToken">The cancellation token for the operation.</param>
-    /// <returns>A document containing the transformed class.</returns>
+    /// <summary>
+    /// Applies the default class layout to a class in a Roslyn document.
+    /// </summary>
+    /// <param name="document">
+    /// The document containing the class.
+    /// </param>
+    /// <param name="classNode">
+    /// The class declaration to transform.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// The cancellation token for the operation.
+    /// </param>
+    /// <returns>
+    /// A document containing the transformed class.
+    /// </returns>
     public static Task<Document> RefactorClassAsync(Document document, ClassDeclarationSyntax classNode, CancellationToken cancellationToken)
         => RefactorClassAsync(document, classNode, cancellationToken, null, false);
 
-    /// <summary>Applies a configured class layout to a class in a Roslyn document.</summary>
-    /// <param name="document">The document containing the class.</param>
-    /// <param name="classNode">The class declaration to transform.</param>
-    /// <param name="cancellationToken">The cancellation token for the operation.</param>
-    /// <param name="configuration">The layout configuration, or <see langword="null"/> for the default.</param>
-    /// <param name="ensureXmlDocumentation">Whether missing member documentation should be added.</param>
-    /// <returns>A document containing the transformed class.</returns>
+    /// <summary>
+    /// Applies a configured class layout to a class in a Roslyn document.
+    /// </summary>
+    /// <param name="document">
+    /// The document containing the class.
+    /// </param>
+    /// <param name="classNode">
+    /// The class declaration to transform.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// The cancellation token for the operation.
+    /// </param>
+    /// <param name="configuration">
+    /// The layout configuration, or <see langword="null"/> for the default.
+    /// </param>
+    /// <param name="ensureXmlDocumentation">
+    /// Whether missing member documentation should be added.
+    /// </param>
+    /// <returns>
+    /// A document containing the transformed class.
+    /// </returns>
     public static async Task<Document> RefactorClassAsync(Document document, ClassDeclarationSyntax classNode, CancellationToken cancellationToken, LayoutConfiguration? configuration, bool ensureXmlDocumentation = false)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -43,8 +67,12 @@ public static class ClassLayoutRefactorer
         return document.WithSyntaxRoot(root.ReplaceNode(classNode, rebuilt));
     }
 
-    /// <summary>Creates the standard member layout used when no configuration is supplied.</summary>
-    /// <returns>A new default layout configuration.</returns>
+    /// <summary>
+    /// Creates the standard member layout used when no configuration is supplied.
+    /// </summary>
+    /// <returns>
+    /// A new default layout configuration.
+    /// </returns>
     public static LayoutConfiguration CreateDefaultConfiguration() => new()
     {
         Regions =
@@ -119,9 +147,15 @@ public static class ClassLayoutRefactorer
         target.Add(last);
     }
 
-    /// <summary>Adds placeholder XML documentation when a member has no documentation comment.</summary>
-    /// <param name="member">The member to inspect.</param>
-    /// <returns>The original member or a member with placeholder documentation.</returns>
+    /// <summary>
+    /// Adds placeholder XML documentation when a member has no documentation comment.
+    /// </summary>
+    /// <param name="member">
+    /// The member to inspect.
+    /// </param>
+    /// <returns>
+    /// The original member or a member with placeholder documentation.
+    /// </returns>
     public static MemberDeclarationSyntax EnsureXmlDocumentation(MemberDeclarationSyntax member)
     {
         ArgumentNullException.ThrowIfNull(member);

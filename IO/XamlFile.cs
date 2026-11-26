@@ -19,7 +19,9 @@ public sealed class XamlFile : DisposableObjectBase
     /// <summary>
     /// Initializes a new instance of the <see cref="XamlFile"/> class.
     /// </summary>
-    /// <param name="pathAndFileName">The fully qualified file path.</param>
+    /// <param name="pathAndFileName">
+    /// The fully qualified file path.
+    /// </param>
     public XamlFile(string pathAndFileName)
     {
         FileName = pathAndFileName;
@@ -48,7 +50,9 @@ public sealed class XamlFile : DisposableObjectBase
     /// <summary>
     /// Loads and parses the XAML file.
     /// </summary>
-    /// <returns>The result of the load operation.</returns>
+    /// <returns>
+    /// The result of the load operation.
+    /// </returns>
     public OperationResult Load()
     {
         OperationResult result = new();
@@ -97,7 +101,9 @@ public sealed class XamlFile : DisposableObjectBase
     /// <summary>
     /// Loads and parses the XAML file.
     /// </summary>
-    /// <returns>The result of the load operation.</returns>
+    /// <returns>
+    /// The result of the load operation.
+    /// </returns>
     public async Task<OperationResult> LoadAsync()
     {
         OperationResult result = new();

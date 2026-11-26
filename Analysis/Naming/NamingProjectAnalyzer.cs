@@ -1,15 +1,23 @@
+using Provident.Foundations.VisualStudio.Analysis.Naming.Analysis;
 using Provident.Foundations.VisualStudio.Model;
 
 namespace Provident.Foundations.VisualStudio.Analysis.Naming;
 
-/// <summary>Analyzes the names contained in one project.</summary>
-public sealed class NamingProjectAnalyzer
+/// <summary>
+/// Analyzes the names contained in one project.
+/// </summary>
+public sealed class NamingProjectAnalyzer : Provident.Foundations.Abstractions.DisposableObjectBase
 {
     private readonly CSharpNameExtractor _csharpExtractor;
     private readonly XamlNameExtractor _xamlExtractor;
     private readonly NamingPatternAnalyzer _patternAnalyzer;
+    private readonly bool _ownsCSharpExtractor;
+    private readonly bool _ownsXamlExtractor;
+    private readonly bool _ownsPatternAnalyzer;
 
-    /// <summary>Initializes a project analyzer.</summary>
+    /// <summary>
+    /// Initializes a project analyzer.
+    /// </summary>
     public NamingProjectAnalyzer(
         CSharpNameExtractor? csharpExtractor = null,
         XamlNameExtractor? xamlExtractor = null,
@@ -18,9 +26,37 @@ public sealed class NamingProjectAnalyzer
         _csharpExtractor = csharpExtractor ?? new CSharpNameExtractor();
         _xamlExtractor = xamlExtractor ?? new XamlNameExtractor();
         _patternAnalyzer = patternAnalyzer ?? new NamingPatternAnalyzer();
+        _ownsCSharpExtractor = csharpExtractor is null;
+        _ownsXamlExtractor = xamlExtractor is null;
+        _ownsPatternAnalyzer = patternAnalyzer is null;
     }
 
-    /// <summary>Analyzes a project and returns its naming result.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (!IsDisposed && disposing)
+        {
+            if (_ownsCSharpExtractor)
+            {
+                _csharpExtractor.Dispose();
+            }
+
+            if (_ownsXamlExtractor)
+            {
+                _xamlExtractor.Dispose();
+            }
+
+            if (_ownsPatternAnalyzer)
+            {
+                _patternAnalyzer.Dispose();
+            }
+        }
+
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Analyzes a project and returns its naming result.
+    /// </summary>
     public async Task<NamingProjectAnalysisResult> AnalyzeAsync(
         ProjectModel project,
         NamingProjectIdentity identity,

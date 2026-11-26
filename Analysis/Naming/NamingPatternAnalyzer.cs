@@ -1,9 +1,18 @@
 namespace Provident.Foundations.VisualStudio.Analysis.Naming;
 
-/// <summary>Infers naming patterns and evaluates observations against them.</summary>
-public sealed class NamingPatternAnalyzer
+/// <summary>
+/// Infers naming patterns and evaluates observations against them.
+/// </summary>
+public sealed class NamingPatternAnalyzer : Provident.Foundations.Abstractions.DisposableObjectBase
 {
-    /// <summary>Infers patterns for the supplied observations.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Infers patterns for the supplied observations.
+    /// </summary>
     public IReadOnlyList<NamingPattern> InferPatterns(IReadOnlyList<NamingObservation> observations, NamingAnalysisConfiguration configuration, string? projectName = null)
     {
         ArgumentNullException.ThrowIfNull(observations);
@@ -14,7 +23,9 @@ public sealed class NamingPatternAnalyzer
             .ToArray();
     }
 
-    /// <summary>Evaluates observations against inferred patterns.</summary>
+    /// <summary>
+    /// Evaluates observations against inferred patterns.
+    /// </summary>
     public IReadOnlyList<NamingViolation> FindViolations(IReadOnlyList<NamingObservation> observations, IReadOnlyList<NamingPattern> patterns, NamingAnalysisConfiguration configuration, IReadOnlyList<NamingSuppression>? suppressions = null)
     {
         ArgumentNullException.ThrowIfNull(observations);
@@ -53,7 +64,9 @@ public sealed class NamingPatternAnalyzer
         return violations;
     }
 
-    /// <summary>Builds aggregate statistics for observations and violations.</summary>
+    /// <summary>
+    /// Builds aggregate statistics for observations and violations.
+    /// </summary>
     public NamingStatistics BuildStatistics(IReadOnlyList<NamingObservation> observations, IReadOnlyList<NamingViolation> violations, int fileCount = 0, int parsedFileCount = 0)
     {
         IEnumerable<NamingObservation> included = observations.Where(item => !item.IsExcluded);

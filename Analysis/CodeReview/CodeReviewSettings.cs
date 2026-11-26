@@ -16,6 +16,21 @@ public sealed class CodeReviewSettings
     public const string UnbracedIfRule = "CSharp.UnbracedIf";
     public const string DeferredWorkRule = "CSharp.DeferredWork";
     public const string MigrationGuardRule = "Sql.MigrationExistenceGuard";
+    public const string AsyncVoidRule = "CSharp.AsyncVoid";
+    public const string AsyncWithoutAwaitRule = "CSharp.AsyncWithoutAwait";
+    public const string ThrowExceptionVariableRule = "CSharp.ThrowExceptionVariable";
+    public const string SyncOverAsyncRule = "CSharp.SyncOverAsync";
+    public const string InterpolatedLogRule = "CSharp.InterpolatedLog";
+    public const string LogExceptionMessageRule = "CSharp.LogExceptionMessage";
+    public const string LogAndRethrowRule = "CSharp.LogAndRethrow";
+    public const string DirectClockRule = "CSharp.DirectClock";
+    public const string UnbracedLoopRule = "CSharp.UnbracedLoop";
+    public const string UtcFieldLocalTimeRule = "CSharp.UtcFieldLocalTime";
+    public const string MultipleDatabaseWritesRule = "CSharp.MultipleDatabaseWrites";
+    public const string NullSuppressionRule = "CSharp.NullSuppression";
+    public const string InlineDataArrayRule = "CSharp.InlineDataArray";
+    public const string SqlUtcTimestampRule = "Sql.UtcTimestamp";
+    public const string SqlNamedPrimaryKeyRule = "Sql.NamedPrimaryKey";
 
     private const RegexOptions SafeRegexOptions = RegexOptions.CultureInvariant | RegexOptions.NonBacktracking;
 
@@ -29,13 +44,32 @@ public sealed class CodeReviewSettings
             [UnbracedIfRule] = new(),
             [DeferredWorkRule] = new() { Pattern = @"\b(TODO|FIXME)\b" },
             [MigrationGuardRule] = new() { Pattern = @"\bIF\s+(NOT\s+)?EXISTS\b" },
+            [AsyncVoidRule] = new(),
+            [AsyncWithoutAwaitRule] = new(),
+            [ThrowExceptionVariableRule] = new(),
+            [SyncOverAsyncRule] = new(),
+            [InterpolatedLogRule] = new(),
+            [LogExceptionMessageRule] = new(),
+            [LogAndRethrowRule] = new(),
+            [DirectClockRule] = new(),
+            [UnbracedLoopRule] = new(),
+            [UtcFieldLocalTimeRule] = new(),
+            [MultipleDatabaseWritesRule] = new(),
+            [NullSuppressionRule] = new(),
+            [InlineDataArrayRule] = new(),
+            [SqlUtcTimestampRule] = new(),
+            [SqlNamedPrimaryKeyRule] = new(),
         };
 
-    /// <summary>Gets or sets the settings indexed by stable rule ID.</summary>
+    /// <summary>
+    /// Gets or sets the settings indexed by stable rule ID.
+    /// </summary>
     [JsonPropertyName("rules")]
     public Dictionary<string, CodeReviewRuleSettings> Rules { get; set; } = CreateDefaultRules();
 
-    /// <summary>Gets settings for a known rule, including defaults for omitted entries.</summary>
+    /// <summary>
+    /// Gets settings for a known rule, including defaults for omitted entries.
+    /// </summary>
     public CodeReviewRuleSettings GetRule(string ruleId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ruleId);
@@ -49,10 +83,14 @@ public sealed class CodeReviewSettings
             : throw new ArgumentOutOfRangeException(nameof(ruleId), ruleId, "Unknown code review rule.");
     }
 
-    /// <summary>Creates a settings instance containing all built-in rule defaults.</summary>
+    /// <summary>
+    /// Creates a settings instance containing all built-in rule defaults.
+    /// </summary>
     public static CodeReviewSettings CreateDefault() => new();
 
-    /// <summary>Validates rule IDs, values, and regular expressions in the settings.</summary>
+    /// <summary>
+    /// Validates rule IDs, values, and regular expressions in the settings.
+    /// </summary>
     public void Validate()
     {
         if (Rules is null)

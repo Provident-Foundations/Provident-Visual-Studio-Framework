@@ -5,18 +5,36 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Provident.Foundations.VisualStudio.Analysis.Naming;
 
-/// <summary>Extracts C# names from syntax trees and optional semantic models.</summary>
-public sealed class CSharpNameExtractor
+/// <summary>
+/// Extracts C# names from syntax trees and optional semantic models.
+/// </summary>
+public sealed class CSharpNameExtractor : Provident.Foundations.Abstractions.DisposableObjectBase
 {
     private readonly INamingClassifier _classifier;
+    private readonly bool _ownsClassifier;
 
-    /// <summary>Initializes a new extractor.</summary>
+    /// <summary>
+    /// Initializes a new extractor.
+    /// </summary>
     public CSharpNameExtractor(INamingClassifier? classifier = null)
     {
         _classifier = classifier ?? new NamingClassifier();
+        _ownsClassifier = classifier is null;
     }
 
-    /// <summary>Extracts names from a C# source file.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (!IsDisposed && disposing && _ownsClassifier && _classifier is IDisposable disposableClassifier)
+        {
+            disposableClassifier.Dispose();
+        }
+
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Extracts names from a C# source file.
+    /// </summary>
     public IReadOnlyList<NamingObservation> Extract(
         string source,
         NamingSourceFileIdentity sourceFile,

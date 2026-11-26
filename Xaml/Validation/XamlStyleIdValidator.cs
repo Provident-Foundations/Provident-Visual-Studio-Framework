@@ -44,7 +44,9 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     /// <summary>
     /// Releases the unmanaged resources used by the <see cref="XamlStyleIdValidator"/> and optionally releases the managed resources.
     /// </summary>
-    /// <param name="disposing"></param>
+    /// <param name="disposing">
+    /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+    /// </param>
     protected override void Dispose(bool disposing)
     {
         _project = null;
@@ -244,8 +246,12 @@ public sealed class XamlStyleIdValidator : DisposableObjectBase
     /// <summary>
     /// Handles the event from the XML style validator instance to update the UI.
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="status"></param>
+    /// <param name="sender">
+    /// The object that raised the event, if available.
+    /// </param>
+    /// <param name="status">
+    /// The status message reported by the validator.
+    /// </param>
     private void HandleStatusUpdate(object? sender, string status)
     {
         UpdateStatus(status);

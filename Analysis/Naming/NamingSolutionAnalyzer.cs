@@ -1,21 +1,50 @@
+using Provident.Foundations.VisualStudio.Analysis.Naming.Analysis;
 using Provident.Foundations.VisualStudio.Model;
 
 namespace Provident.Foundations.VisualStudio.Analysis.Naming;
 
-/// <summary>Analyzes naming patterns across all projects in a solution.</summary>
-public sealed class NamingSolutionAnalyzer
+/// <summary>
+/// Analyzes naming patterns across all projects in a solution.
+/// </summary>
+public sealed class NamingSolutionAnalyzer : Provident.Foundations.Abstractions.DisposableObjectBase
 {
     private readonly NamingProjectAnalyzer _projectAnalyzer;
     private readonly NamingPatternAnalyzer _patternAnalyzer;
+    private readonly bool _ownsProjectAnalyzer;
+    private readonly bool _ownsPatternAnalyzer;
 
-    /// <summary>Initializes a solution analyzer.</summary>
+    /// <summary>
+    /// Initializes a solution analyzer.
+    /// </summary>
     public NamingSolutionAnalyzer(NamingProjectAnalyzer? projectAnalyzer = null, NamingPatternAnalyzer? patternAnalyzer = null)
     {
         _projectAnalyzer = projectAnalyzer ?? new NamingProjectAnalyzer();
         _patternAnalyzer = patternAnalyzer ?? new NamingPatternAnalyzer();
+        _ownsProjectAnalyzer = projectAnalyzer is null;
+        _ownsPatternAnalyzer = patternAnalyzer is null;
     }
 
-    /// <summary>Analyzes the projects represented by a solution model.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (!IsDisposed && disposing)
+        {
+            if (_ownsProjectAnalyzer)
+            {
+                _projectAnalyzer.Dispose();
+            }
+
+            if (_ownsPatternAnalyzer)
+            {
+                _patternAnalyzer.Dispose();
+            }
+        }
+
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Analyzes the projects represented by a solution model.
+    /// </summary>
     public async Task<NamingSolutionAnalysisResult> AnalyzeAsync(
         VsSolutionModel solution,
         NamingAnalysisConfiguration? configuration = null,
@@ -51,7 +80,7 @@ public sealed class NamingSolutionAnalyzer
                 projects.Add(new NamingSolutionProjectResult
                 {
                     Project = identity,
-                    Dependencies = project.Project.ProjectReferences.Select(reference => reference.Include ?? string.Empty).Where(value => value.Length > 0).ToArray(),
+                    Dependencies = project.Project.ProjectReferences.Select(reference => reference.Include ?? string.Empty).Where(value => value.Length > 0).ToList(),
                     Status = result.Status,
                     Result = result,
                     Diagnostics = result.Diagnostics

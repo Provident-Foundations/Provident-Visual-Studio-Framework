@@ -21,7 +21,9 @@ public sealed class XamlDuplicateResource : XamlResourceDescriptorBase
     /// <summary>
     /// Releases the unmanaged resources used by the <see cref="XamlDuplicateResource"/> and optionally releases the managed resources.
     /// </summary>
-    /// <param name="disposing"></param>
+    /// <param name="disposing">
+    /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+    /// </param>
     protected override void Dispose(bool disposing)
     {
         _existingFile = null;

@@ -1,4 +1,6 @@
-﻿namespace Provident.Foundations.VisualStudio.Model;
+﻿using System.Security.Principal;
+
+namespace Provident.Foundations.VisualStudio.Model;
 
 /// <summary>
 /// Represents a project in a solution.
@@ -69,4 +71,44 @@ public class ProjectModel
     /// Gets packaging metadata.
     /// </summary>
     public WinUiPackagingModel Packaging { get; set; } = new();
+
+    /// <summary>
+    /// Attempts to get the root namepsace of the project.
+    /// </summary>
+    /// <returns>
+    /// A string containing the root namespace.
+    /// </returns>
+    public string? GetRootNamespace()
+    {
+        string? rootNamespace = null;
+
+        if (Properties is not null)
+        {
+            bool hasValue = Properties.TryGetValue("RootNamespace", out string? root);
+            if (hasValue)
+            {
+                rootNamespace = root;
+            }
+        }
+        return rootNamespace;
+    }
+
+    public List<string>? GetTargetFrameworkList()
+    {
+        List<string>? frameworkList = null;
+
+        if (Properties is null)
+        {
+            return null;
+        }
+        else
+        {
+            bool hasValue = Properties.TryGetValue("TargetFramework", out string? framework);
+            if (hasValue && framework is not null)
+            {
+                frameworkList = new List<string> { framework };
+            }
+        }
+        return frameworkList;
+    }
 }

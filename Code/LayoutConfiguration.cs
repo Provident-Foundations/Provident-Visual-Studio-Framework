@@ -12,7 +12,9 @@ namespace Provident.Foundations.VisualStudio.Code
         /// <summary>
         /// Gets the configured regions in output order.
         /// </summary>
-        /// <value>A mutable list of region configurations.</value>
+        /// <value>
+        /// A mutable list of region configurations.
+        /// </value>
         public IList<RegionConfiguration> Regions { get; init; }
         = new List<RegionConfiguration>();
     }

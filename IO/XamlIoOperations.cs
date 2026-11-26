@@ -10,8 +10,12 @@ public static class XamlIoOperations
     /// <summary>
     /// Validates a root folder path.
     /// </summary>
-    /// <param name="rootFolder">The folder path, or <see langword="null"/> for the current directory.</param>
-    /// <returns>The validation result and normalized folder path.</returns>
+    /// <param name="rootFolder">
+    /// The folder path, or <see langword="null"/> for the current directory.
+    /// </param>
+    /// <returns>
+    /// The validation result and normalized folder path.
+    /// </returns>
     public static OperationResult<string> ValidateRootFolder(string? rootFolder)
     {
         OperationResult<string> result = new();
@@ -33,8 +37,12 @@ public static class XamlIoOperations
     /// <summary>
     /// Finds XAML files beneath a root folder.
     /// </summary>
-    /// <param name="rootFolder">The folder to search.</param>
-    /// <returns>A sorted list of XAML file paths.</returns>
+    /// <param name="rootFolder">
+    /// The folder to search.
+    /// </param>
+    /// <returns>
+    /// A sorted list of XAML file paths.
+    /// </returns>
     public static async Task<OperationResult<List<string>>> FindXamlFilesAsync(string rootFolder)
     {
         OperationResult<List<string>> result = new();
@@ -72,8 +80,12 @@ public static class XamlIoOperations
     /// <summary>
     /// Loads a collection of XAML files.
     /// </summary>
-    /// <param name="fileNames">The paths to load.</param>
-    /// <returns>The loaded files, or a failure result.</returns>
+    /// <param name="fileNames">
+    /// The paths to load.
+    /// </param>
+    /// <returns>
+    /// The loaded files, or a failure result.
+    /// </returns>
     public static async Task<OperationResult<Dictionary<string, XamlFile>>> LoadXamlFilesAsync(IReadOnlyList<string> fileNames)
     {
         OperationResult<Dictionary<string, XamlFile>> result = new();

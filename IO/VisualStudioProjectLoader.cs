@@ -21,8 +21,12 @@ public sealed class VisualStudioProjectLoader
     /// <summary>
     /// Loads a project file and its declared MSBuild metadata.
     /// </summary>
-    /// <param name="projectPath">The path to the project file.</param>
-    /// <returns>The populated project model.</returns>
+    /// <param name="projectPath">
+    /// The path to the project file.
+    /// </param>
+    /// <returns>
+    /// The populated project model.
+    /// </returns>
     public ProjectModel Load(string projectPath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(projectPath);

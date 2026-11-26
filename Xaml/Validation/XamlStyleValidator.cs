@@ -69,7 +69,9 @@ public sealed class XamlStyleValidator : DisposableObjectBase
     /// <summary>
     /// Releases the unmanaged resources used by the <see cref="XamlStyleValidator"/> and optionally releases the managed resources.
     /// </summary>
-    /// <param name="disposing"></param>
+    /// <param name="disposing">
+    /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+    /// </param>
     protected override void Dispose(bool disposing)
     {
         if (!IsDisposed && disposing)
@@ -295,8 +297,12 @@ public sealed class XamlStyleValidator : DisposableObjectBase
     /// <summary>
     /// Scans source lines for StaticResource and ThemeResource references.
     /// </summary>
-    /// <param name="fileName">The source file path.</param>
-    /// <param name="xamlDocument">The loaded XAML file.</param>
+    /// <param name="fileName">
+    /// The source file path.
+    /// </param>
+    /// <param name="xamlDocument">
+    /// The loaded XAML file.
+    /// </param>
     private OperationResult ScanReferences(string fileName, XamlFile xamlDocument)
     {
         OperationResult result = new();
@@ -334,7 +340,9 @@ public sealed class XamlStyleValidator : DisposableObjectBase
     /// <summary>
     /// Finds references whose keys are not defined.
     /// </summary>
-    /// <returns>The number of unique missing keys.</returns>
+    /// <returns>
+    /// The number of unique missing keys.
+    /// </returns>
     private int FindMissingResources()
     {
         XamlDefinitionsContainer definitions = _xamlDefs ?? throw new ObjectDisposedException(nameof(XamlStyleValidator));
@@ -356,7 +364,9 @@ public sealed class XamlStyleValidator : DisposableObjectBase
     /// <summary>
     /// Detects cycles in the style dependency graph.
     /// </summary>
-    /// <returns>The detected circular dependencies.</returns>
+    /// <returns>
+    /// The detected circular dependencies.
+    /// </returns>
     private XamlCircularReferenceInfo DetectCircularDependencies()
     {
         XamlDefinitionsContainer definitions = _xamlDefs ?? throw new ObjectDisposedException(nameof(XamlStyleValidator));

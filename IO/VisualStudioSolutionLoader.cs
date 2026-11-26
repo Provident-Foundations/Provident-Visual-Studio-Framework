@@ -19,7 +19,9 @@ public sealed class VisualStudioSolutionLoader
     /// <summary>
     /// Initializes a solution loader.
     /// </summary>
-    /// <param name="projectLoader">The project loader to use.</param>
+    /// <param name="projectLoader">
+    /// The project loader to use.
+    /// </param>
     public VisualStudioSolutionLoader(VisualStudioProjectLoader? projectLoader = null)
     {
         _projectLoader = projectLoader ?? new VisualStudioProjectLoader();
@@ -28,8 +30,12 @@ public sealed class VisualStudioSolutionLoader
     /// <summary>
     /// Loads a solution and all project files that it references.
     /// </summary>
-    /// <param name="solutionPath">The path to a `.sln` or `.slnx` file.</param>
-    /// <returns>The populated solution model.</returns>
+    /// <param name="solutionPath">
+    /// The path to a `.sln` or `.slnx` file.
+    /// </param>
+    /// <returns>
+    /// The populated solution model.
+    /// </returns>
     public VsSolutionModel Load(string solutionPath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(solutionPath);
@@ -42,8 +48,12 @@ public sealed class VisualStudioSolutionLoader
     /// <summary>
     /// Loads a solution and all project files that it references.
     /// </summary>
-    /// <param name="solutionPath">The path to a `.sln` or `.slnx` file.</param>
-    /// <returns>The populated solution model.</returns>
+    /// <param name="solutionPath">
+    /// The path to a `.sln` or `.slnx` file.
+    /// </param>
+    /// <returns>
+    /// The populated solution model.
+    /// </returns>
     public async Task<VsSolutionModel> LoadAsync(string solutionPath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(solutionPath);
@@ -56,8 +66,12 @@ public sealed class VisualStudioSolutionLoader
     /// <summary>
     /// Loads a solution as the richer XAML-aware model.
     /// </summary>
-    /// <param name="solutionPath">The path to a `.sln` or `.slnx` file.</param>
-    /// <returns>The populated XAML solution model.</returns>
+    /// <param name="solutionPath">
+    /// The path to a `.sln` or `.slnx` file.
+    /// </param>
+    /// <returns>
+    /// The populated XAML solution model.
+    /// </returns>
     public async Task<VsSolutionModel> LoadSolutionAsync(string solutionPath)
     {
         await Task.Yield();
@@ -79,8 +93,12 @@ public sealed class VisualStudioSolutionLoader
     /// <summary>
     /// Loads a solution as the richer XAML-aware model.
     /// </summary>
-    /// <param name="solutionPath">The path to a `.sln` or `.slnx` file.</param>
-    /// <returns>The populated XAML solution model.</returns>
+    /// <param name="solutionPath">
+    /// The path to a `.sln` or `.slnx` file.
+    /// </param>
+    /// <returns>
+    /// The populated XAML solution model.
+    /// </returns>
     public VsSolutionModel LoadSolution(string solutionPath)
     {
         VsSolutionModel loaded = Load(solutionPath);
