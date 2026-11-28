@@ -1,18 +1,20 @@
-![Provident Foundations banner](../../Core/Provident%20Foundations%20Framework/Provident.Foundations/PFBanner.png)
+﻿![Provident Foundations banner](PFBanner.png)
 
-# Provident Foundations Visual Studio Framework
+# Provident Foundations Framework
 
-A library for working with Visual Studio solution, project, source and XAML information in .NET applications. It provides models and analysis services used by the Provident Foundations developer tools and UI libraries; it is not itself a Visual Studio extension or IDE.
+The core Provident Foundations library supplies reusable building blocks for .NET applications and for the other libraries in this repository. It consolidates common functionality from the original framework under the `Provident.Foundations` namespaces.
 
 ## What's included
 
-- Solution and project models and loaders, with MSBuild and Roslyn dependencies.
-- C# class-layout and naming analysis, plus configurable code-review rules.
-- XAML file, resource and style analysis and validation.
-- Developer-tool and icon helpers.
+- **Application abstractions:** disposable, property-aware, exception-tracking, logging and business-object base classes; repository and operation-result contracts.
+- **Data and validation:** collections, common value types, conversion helpers, attributes and validation messages.
+- **Infrastructure:** file and serialization utilities, logging, TCP networking helpers, and security and cryptography types.
+- **Supporting utilities:** events, extensions, console helpers, state and financial types.
 
-The code-review analyzer implements a limited set of automated checks; categories without rules still require manual review. Its coverage descriptions identify those limitations.
+For example, `Provident.Foundations.Abstractions` includes `DisposableObjectBase`, `PropertyAwareBase`, `ExceptionTrackingBase`, `BusinessBase` and the `IOperationResult` contracts. `LoggableBase` is in `Provident.Foundations.Abstractions.Logging`.
 
 ## Requirements and use
 
-The project targets **.NET 11** (`net11.0`) and currently specifies x64 as its platform target. Reference the project from a compatible application. Loading projects depends on MSBuild and may require the appropriate SDKs and build environment for the projects being inspected. The library references the core Provident Foundations project.
+The project targets **.NET 11** (`net11.0`) and currently specifies x64 as its platform target. Reference the `Provident.Foundations` package or the project from a compatible application. Some individual APIs are platform-specific; consult their platform annotations and documentation.
+
+The library is provided without guarantees; evaluate its suitability for your application before use. See `License.txt` for licensing terms.

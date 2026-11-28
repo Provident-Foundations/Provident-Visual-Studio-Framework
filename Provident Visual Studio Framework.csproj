@@ -10,9 +10,46 @@
     <PlatformTarget>x64</PlatformTarget>
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
     <Platforms>AnyCPU;x64</Platforms>
+    <ApplicationIcon>ProvidentFoundations.ico</ApplicationIcon>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Provident Foundations Visual Studio Framework</Title>
+    <Version>11.98.3.0</Version>
+    <Authors>Sam Jones</Authors>
+    <Company>Provident Foundations</Company>
+    <Product>Provident Foundations Visual Studio Framework</Product>
+    <Description>.NET Class Library for working with Visual Studio Solutions and Projects.</Description>
+    <Copyright>Copyright © 2026 by Provident Foundations.  All rights reserved.</Copyright>
+    <PackageProjectUrl>https://samjones.azurewebsites.net</PackageProjectUrl>
+    <PackageIcon>Nuget Package Logo For Applications.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Provident-Foundations/Provident-Visual-Studio-Framework</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.Bcl.AsyncInterfaces.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.Build.Locator.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe.config" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.pdb" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.IO.Redist.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Buffers.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.IO.Pipelines.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Memory.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Numerics.Vectors.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Runtime.CompilerServices.Unsafe.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Text.Encodings.Web.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Text.Json.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Threading.Tasks.Extensions.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.Build.Locator.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.deps.json" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.runtimeconfig.json" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.dll" />
+    <Content Remove="C:\Users\sjone\.nuget\packages\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.pdb" />
     <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.Bcl.AsyncInterfaces.dll" />
     <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.Build.Locator.dll" />
     <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe" />
@@ -55,6 +92,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.12.0" />
+    <PackageReference Include="Provident.Foundations" Version="11.98.3" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="11.0.0" />
   </ItemGroup>
@@ -64,11 +102,26 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="ProvidentFoundations.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="D:\Provident Foundations\Provident Visual Studio Framework\Model\.editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Provident Foundations Framework\Provident.Foundations\Provident.Foundations.csproj" />
+    <None Update="License.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Nuget Package Logo For Applications.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
