@@ -13,6 +13,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.Bcl.AsyncInterfaces.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.Build.Locator.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.exe.config" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.pdb" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\Microsoft.IO.Redist.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Buffers.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.IO.Pipelines.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Memory.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Numerics.Vectors.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Runtime.CompilerServices.Unsafe.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Text.Encodings.Web.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Text.Json.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-net472\System.Threading.Tasks.Extensions.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.Build.Locator.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.deps.json" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.runtimeconfig.json" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.dll" />
+    <Content Remove="D:\NuGet\microsoft.codeanalysis.workspaces.msbuild\5.12.0\contentFiles\any\any\BuildHost-netcore\Microsoft.CodeAnalysis.Workspaces.MSBuild.Contracts.pdb" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" Version="18.12.2">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
